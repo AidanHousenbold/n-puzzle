@@ -27,17 +27,6 @@ def LoadFromFile(filepath):
 		return error_message
 	return data
 
-def ComputeNeighbors(state):
-	hole_coords = [0,0]
-	adj_coords = []
-	for row in range(len(state)):
-		for col in range(len(state)):
-			if state[row][col] == "*":
-				print("entered")
-				hole_coords[0] = row
-				hole_coords[1] = col
-	print(hole_coords)
-
 state = LoadFromFile(input)
-ComputeNeighbors(state)
+print(state)
 
