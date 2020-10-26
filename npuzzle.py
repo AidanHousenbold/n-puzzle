@@ -200,12 +200,13 @@ def BidirectionalSearch(state):
 		discoveredF.add(current_stateF)
 		discoveredB.add(current_stateB)
 
-		if len(discoveredF.intersection(discoveredB) > 0:
-			pathF = FindPath(parents, current_stateF)
-			pathB = FindPath(parents, current_stateB)
-			print(F)
-			print(B)
-			return True
+		if len(discoveredF.intersection(discoveredB)) > 0:
+			point = list(discoveredF.intersection(discoveredB))[0]
+			pathF = FindPath(parentsF, point)
+			pathB = FindPath(parentsB, point)
+			pathB.reverse()
+			return pathF + pathB
+
 
 #Forward Compute Neighbors
 		for neighbor in ComputeNeighbors(current_stateF):
@@ -221,7 +222,17 @@ def BidirectionalSearch(state):
 				discoveredB.add(neighbor[1])	
 				parentsB[neighbor[1]] = current_stateB
 
+def main():
+	state = LoadFromFile(input)
+	print("BidirectionalSearch:")
+	print(BidirectionalSearch(state))
+	print("__________________________________")
+	print("BFS:")
+	print(BFS(state))
+	print("__________________________________")
+	print("DFS:")
+	print(DFS(state))
+	print("__________________________________")
 
-state = LoadFromFile(input)
-print(BidirectionalSearch(state))
 
+main()
