@@ -1,5 +1,5 @@
-input = open("input.txt", "r")
 
+#Returns tuple of tuples that represents the state taken from the file
 def LoadFromFile(filepath):
 	valid = False
 	n = int(filepath.readline())
@@ -27,6 +27,10 @@ def LoadFromFile(filepath):
 	returnTuple = tuple(map(tuple, data))
 	return returnTuple
 
+
+#Computes the neighbors of a given state
+# Returns a collection of pairs that contain
+# the tile that goes into the hole and the new state
 def ComputeNeighbors(state):
 	hole_coords = [0,0]
 	state = list(map(list, state))
@@ -80,12 +84,14 @@ def ComputeNeighbors(state):
 	returnTuple = tuple(replace)
 	return returnTuple
 
+#Makes sure the input is within the given boundaries
 def isValid(y,x, length):
 	if x >= 0 and x <= length -1:
 		if y >= 0 and y <= length -1:
 			return True
 	return False
 
+#Prints out the state - just for testing
 def DeBugPrint(state):
 	n = len(state)
 	row = 0
@@ -97,6 +103,7 @@ def DeBugPrint(state):
 		row = row + 1
 	print("_____________________________")
 
+#Returns True if the state is the goal, false otherwise
 def IsGoal(state):
 	length = len(state)
 	flattenState = [j for sub in state for j in sub]#Makes the state a single list
@@ -107,6 +114,7 @@ def IsGoal(state):
 			return True
 	return False
 
+#Finds the path it takes to get from one 
 def FindPath(parents, final_state):
 	path = [] #getall the states
 	tiles = []
@@ -126,11 +134,14 @@ def FindPath(parents, final_state):
 	tiles.reverse()
 	return tiles
 
+#Swaps two tiles
 def FindTileChange(parent, child):
 	for neighbor in ComputeNeighbors(child):
 		if neighbor[1] == parent:
 			return neighbor[0]
 
+#Uses the BFS method to find a solution to the puzzle
+# Returns a sequence of tile needed to move to reach the goal
 def BFS(state):
 	frontier = [state]
 	discovered = set(state)
@@ -150,18 +161,18 @@ def BFS(state):
 				parents[neighbor[1]] = current_state
 	return None
 
+#Uses the DPS method to find a solution to the puzzle
+#Returns a sequence of tiles needed to move to reach the goal
 def DFS(state):
 	frontier = [state]
 	discovered = set(state)
 	parents = {state: None}
-
 	while frontier:
 		current_state = frontier.pop(0)
 		discovered.add(current_state)
-
 		if IsGoal(current_state):
+			print("got here")
 			return FindPath(parents, current_state)
-
 		for neighbor in ComputeNeighbors(current_state):
 			if neighbor[1] not in discovered:
 				frontier.insert(0, neighbor[1]) #add to front
@@ -169,6 +180,7 @@ def DFS(state):
 				parents[neighbor[1]] = current_state
 	return None
 
+#Creates a goalstate that represents our target for the method
 def GetGoalState(state):
 	flattenState = [j for sub in state for j in sub]#Makes the state a single list
 	flattenState.remove(0)
@@ -184,6 +196,8 @@ def GetGoalState(state):
 	goalstate = tuple(map(tuple, goalstate))
 	return goalstate
 
+#Implements the bidirectional search method
+# Returns a list tiles needed to be moved to reach the goal state
 def BidirectionalSearch(state):
 	goal = GetGoalState(state)
 	frontierF = [state]
@@ -223,8 +237,10 @@ def BidirectionalSearch(state):
 				parentsB[neighbor[1]] = current_stateB
 
 def main():
+	#Read from the file
+	input = open("input.txt", "r")
 	state = LoadFromFile(input)
-	print("BidirectionalSearch:")
+	#print("BidirectionalSearch:")
 	print(BidirectionalSearch(state))
 	print("__________________________________")
 	print("BFS:")
