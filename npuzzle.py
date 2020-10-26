@@ -103,10 +103,34 @@ def IsGoal(state):
 	NoHole = flattenState[:(length*length) - 1]
 	lastLine = state[length - 1]
 	if sorted(NoHole) == NoHole:
-		print("gothere")
 		if lastLine[length - 1] == 0:
 			return True
 	return False
+
+def FindPath(parents, final_state):
+	path = []
+	tiles = []
+	current = parents[final_state]
+	tiles.append(parents[final_state])
+	count = 1
+
+#create a list of all the states in the path
+	while current != None:
+		path.append(current)
+		current = parents[current]
+
+#find the tiles moved for each state
+	for currstate in path:
+		if(count < len(path)):
+			tiles.append(FindTileChange(path[count], currstate))
+			count = count + 1
+	tiles.reverse()
+	return tiles
+
+def FindTileChange(parent, child):
+	for neighbor in ComputeNeighbors(child):
+		if neighbor[1] == parent:
+			return neighbor[0]
 
 def BFS(state):
 	frontier = [state]
@@ -115,9 +139,9 @@ def BFS(state):
 	while frontier:
 		current_state = frontier.pop(0)
 		discovered.add(current_state)
-		
+
 		if IsGoal(current_state):
-			return True
+			return FindPath(parents, current_state)
 
 		for neighbor in ComputeNeighbors(current_state):
 			if neighbor[1] not in discovered:
@@ -125,7 +149,7 @@ def BFS(state):
 				discovered.add(neighbor[1])	
 				parents[neighbor[1]] = current_state
 
-def DFS(state)
+def DFS(state):
 	frontier = [state]
 	discovered = set(state)
 	parents = {state: None}
@@ -135,11 +159,11 @@ def DFS(state)
 		discovered.add(current_state)
 
 		if IsGoal(current_state):
-			return True
+			return FindPath(parents, current_state)
 
-		for neighbor in computeNeighbors(current_state):
+		for neighbor in ComputeNeighbors(current_state):
 			if neighbor[1] not in discovered:
-				frontier.insert(0, neighbor[1]) # add to front
+				frontier.insert(0, neighbor[1]) #add to front
 				discovered.add(neighbor[1])	
 				parents[neighbor[1]] = current_state
 
@@ -147,6 +171,6 @@ def DFS(state)
 
 	
 state = LoadFromFile(input)
-print(ComputeNeighbors(state))
-print(IsGoal(state))
+print(BFS(state))
+print(DFS(state))
 
