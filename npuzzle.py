@@ -1,4 +1,3 @@
-import math
 input = open("input.txt", "r")
 
 def LoadFromFile(filepath):
@@ -25,51 +24,61 @@ def LoadFromFile(filepath):
 #checks to see if a hole is in the txt
 	if valid == False:
 		return error_message
-	return data
+	returnTuple = tuple(map(tuple, data))
+	return returnTuple
 
 def ComputeNeighbors(state):
 	hole_coords = [0,0]
+	state = list(map(list, state))
 	replace = []
-	length = len(state) - 1
+	length = len(state)
 	for row in range(length):
 		for col in range(length):
 			if state[row][col] == 0:
 				hole_coords[0] = row
 				hole_coords[1] = col
-	print(hole_coords)
 
 	#above 
 	if isValid(hole_coords[0] - 1, hole_coords[1], length) == True:
 		temp = [row[:] for row in state]
-		neighborCord = temp[hole_coords[0] - 1][hole_coords[1]]
-		temp[hole_coords[0]][hole_coords[1]] = neighborCord
+		neighbor = temp[hole_coords[0] - 1][hole_coords[1]]
+		temp[hole_coords[0]][hole_coords[1]] = neighbor
 		temp[hole_coords[0] - 1][hole_coords[1]] = 0
-		replace.append([neighborCord, temp])
+		tempAdd = tuple(map(tuple, temp))
+		tupleAdd = (neighbor, tempAdd)
+		replace.append(tupleAdd)
 
 	#below
 	if isValid(hole_coords[0] + 1, hole_coords[1], length) == True:
 		temp = [row[:] for row in state]
-		neighborCord = temp[hole_coords[0] + 1][hole_coords[1]]
-		temp[hole_coords[0]][hole_coords[1]] = neighborCord
+		neighbor = temp[hole_coords[0] + 1][hole_coords[1]]
+		temp[hole_coords[0]][hole_coords[1]] = neighbor
 		temp[hole_coords[0] + 1][hole_coords[1]] = 0
-		replace.append([neighborCord, temp])
+		tempAdd = tuple(map(tuple, temp))
+		tupleAdd = (neighbor, tempAdd)
+		replace.append(tupleAdd)
 
 	#right
 	if isValid(hole_coords[0], hole_coords[1] + 1, length) == True:
 		temp = [row[:] for row in state]
-		neighborCord = temp[hole_coords[0]][hole_coords[1] + 1]
-		temp[hole_coords[0]][hole_coords[1]] = neighborCord
+		neighbor = temp[hole_coords[0]][hole_coords[1] + 1]
+		temp[hole_coords[0]][hole_coords[1]] = neighbor
 		temp[hole_coords[0]][hole_coords[1] + 1] = 0
-		replace.append([neighborCord, temp])
+		tempAdd = tuple(map(tuple, temp))
+		tupleAdd = (neighbor, tempAdd)
+		replace.append(tupleAdd)
 
 	#left
 	if isValid(hole_coords[0], hole_coords[1] - 1, length) == True:
 		temp = [row[:] for row in state]
-		neighborCord = temp[hole_coords[0]][hole_coords[1] - 1]
-		temp[hole_coords[0]][hole_coords[1]] = neighborCord
+		neighbor = temp[hole_coords[0]][hole_coords[1] - 1]
+		temp[hole_coords[0]][hole_coords[1]] = neighbor
 		temp[hole_coords[0]][hole_coords[1] - 1] = 0
-		replace.append([neighborCord, temp])
-	return replace
+		tempAdd = tuple(map(tuple, temp))
+		tupleAdd = (neighbor, tempAdd)
+		replace.append(tupleAdd)
+	returnTuple = tuple(replace)
+	return returnTuple
 
 def isValid(y,x, length):
 	if x >= 0 and x <= length -1:
@@ -77,7 +86,7 @@ def isValid(y,x, length):
 			return True
 	return False
 
-def format(state):
+def DeBugPrint(state):
 	n = len(state)
 	row = 0
 	print("_____________________________")
@@ -88,49 +97,56 @@ def format(state):
 		row = row + 1
 	print("_____________________________")
 
-def isGoal(state):
-	longlist = []
+def IsGoal(state):
 	length = len(state)
-	i = 0
-	while i < len(state):
-		if (all(i < j for i, j in zip(state, state[i:i+4]))) == False:
-			return False
-		i = i + 4
-	return True
-	
+	flattenState = [j for sub in state for j in sub]#Makes the state a single list
+	NoHole = flattenState[:(length*length) - 1]
+	lastLine = state[length - 1]
+	if sorted(NoHole) == NoHole:
+		print("gothere")
+		if lastLine[length - 1] == 0:
+			return True
+	return False
+
 def BFS(state):
 	frontier = [state]
-	discovered = state
-	string_ints = [str(int) for int in state]
-	og_key = ",".join(string_ints)
-	parents = {og_key: None}
-
-	while len(frontier) != 0:
+	discovered = set(state)
+	parents = {state: None}
+	while frontier:
 		current_state = frontier.pop(0)
-		discovered.add(tuple(current_state))
-	
-		print(isGoal(current_state))
-		if isGoal(current_state):
-			return sorted(parents.items())
-	
-		neighbor = ComputeNeighbors(current_state)
-		for current in neighbor:
-			print("gotHere 1")
-			print(current[1])
-			print(discovered)
-			if current[1] in discovered:
-				print("gotHere 2")
-				frontier.append(neighbor)
-				discovered.append(neighbor)
-				print("current")
-				print(current[0])
-				parents[current[0]] = current_state
-				print(parents)
+		discovered.add(current_state)
+		
+		if IsGoal(current_state):
+			return True
+
+		for neighbor in ComputeNeighbors(current_state):
+			if neighbor[1] not in discovered:
+				frontier.append(neighbor[1])
+				discovered.add(neighbor[1])	
+				parents[neighbor[1]] = current_state
+
+def DFS(state)
+	frontier = [state]
+	discovered = set(state)
+	parents = {state: None}
+
+	while frontier:
+		current_state = frontier.pop(0)
+		discovered.add(current_state)
+
+		if IsGoal(current_state):
+			return True
+
+		for neighbor in computeNeighbors(current_state):
+			if neighbor[1] not in discovered:
+				frontier.insert(0, neighbor[1]) # add to front
+				discovered.add(neighbor[1])	
+				parents[neighbor[1]] = current_state
 
 
+
+	
 state = LoadFromFile(input)
-
-#for grid in temp:
-#	format(grid[1])
-print(BFS(state))
+print(ComputeNeighbors(state))
+print(IsGoal(state))
 
