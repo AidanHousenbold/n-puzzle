@@ -108,10 +108,9 @@ def IsGoal(state):
 	return False
 
 def FindPath(parents, final_state):
-	path = []
+	path = [] #getall the states
 	tiles = []
-	current = parents[final_state]
-	tiles.append(parents[final_state])
+	current = final_state
 	count = 1
 
 #create a list of all the states in the path
@@ -136,6 +135,7 @@ def BFS(state):
 	frontier = [state]
 	discovered = set(state)
 	parents = {state: None}
+	
 	while frontier:
 		current_state = frontier.pop(0)
 		discovered.add(current_state)
@@ -148,6 +148,7 @@ def BFS(state):
 				frontier.append(neighbor[1])
 				discovered.add(neighbor[1])	
 				parents[neighbor[1]] = current_state
+	return None
 
 def DFS(state):
 	frontier = [state]
@@ -166,11 +167,61 @@ def DFS(state):
 				frontier.insert(0, neighbor[1]) #add to front
 				discovered.add(neighbor[1])	
 				parents[neighbor[1]] = current_state
+	return None
 
-
-
+def GetGoalState(state):
+	flattenState = [j for sub in state for j in sub]#Makes the state a single list
+	flattenState.remove(0)
+	flattenState.sort()
+	flattenState.append(0)
+	goalstate = []
+	print(flattenState)
 	
+	location = 0
+	while location < len(state)*len(state):
+		goalstate.append(flattenState[location:(location + 4)])
+		location = location + len(state)
+	goalstate = tuple(map(tuple, goalstate))
+	return goalstate
+
+def BidirectionalSearch(state):
+	goal = GetGoalState(state)
+	frontierF = [state]
+	frontierB = [goal]
+	discoveredF = set(state)
+	discoveredB = set(goal)
+	parentsF = {state: None}
+	parentsB = {goal: None}
+
+	while frontierF or frontierB:
+		current_stateF = frontierF.pop(0)
+		current_stateB = frontierB.pop(0)
+
+		discoveredF.add(current_stateF)
+		discoveredB.add(current_stateB)
+
+		if len(discoveredF.intersection(discoveredB) > 0:
+			pathF = FindPath(parents, current_stateF)
+			pathB = FindPath(parents, current_stateB)
+			print(F)
+			print(B)
+			return True
+
+#Forward Compute Neighbors
+		for neighbor in ComputeNeighbors(current_stateF):
+			if neighbor[1] not in discoveredF:
+				frontierF.append(neighbor[1])
+				discoveredF.add(neighbor[1])	
+				parentsF[neighbor[1]] = current_stateF
+
+#BackwardsCompute Neighbors
+		for neighbor in ComputeNeighbors(current_stateB):
+			if neighbor[1] not in discoveredB:
+				frontierB.append(neighbor[1])
+				discoveredB.add(neighbor[1])	
+				parentsB[neighbor[1]] = current_stateB
+
+
 state = LoadFromFile(input)
-print(BFS(state))
-print(DFS(state))
+print(BidirectionalSearch(state))
 
